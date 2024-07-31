@@ -1,16 +1,18 @@
-import { execSync } from 'child_process';
+import * as zlib from 'zlib'
 import * as fs from 'fs';
+
 
 const args = process.argv.slice(2);
 const command = args[0];
 
 enum Commands {
     Init = "init",
-    CatFile = 'cat-file'
+    CatFile = 'cat-file',
+    HashObject='hash-object'
 }
 
 switch (command) {
-    case Commands.Init:
+    case Commands.Init:{
         // You can use print statements as follows for debugging, they'll be visible when running tests.
         console.log("Logs from your program will appear here!");
 
@@ -21,15 +23,25 @@ switch (command) {
         fs.writeFileSync(".git/HEAD", "ref: refs/heads/main\n");
         console.log("Initialized git directory");
         break;
-
-    case Commands.CatFile:
-        const [ coommand , type , hash ] = args
-        if(type === '-p')
-        {
-          const result = execSync(`git cat-file -p ${hash}`)
-          process.stdout.write(result.toString())
-        } 
+    }
+    case Commands.CatFile:{
+        const blobDir = args[2].substring(0, 2);
+        const blobFile = args[2].substring(2);
+        const blob = fs.readFileSync(`.git/objects/${blobDir}/${blobFile}`);
+        const decompressedBuffer = zlib.unzipSync(blob);
+        const nullByteIndex = decompressedBuffer.indexOf(0);
+        const blobContent = decompressedBuffer.subarray(nullByteIndex + 1).toString();
+        process.stdout.write(blobContent);
         break;
+    }
+
+    case Commands.HashObject:{
+        const fileName = args[2]
+        const data = fs.readFileSync(fileName)
+        const blobContent = zlib.gzipSync(`blob ${data.length}\0${data}`)
+        console.log(blobContent)
+        break;
+    }
     default:
         throw new Error(`Unknown command ${command}`);
 }
