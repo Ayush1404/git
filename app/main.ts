@@ -23,15 +23,12 @@ switch (command) {
         break;
 
     case Commands.CatFile:
-        
-        console.log("Logs from your program will appear here!");
         const [ coommand , type , hash ] = args
         if(type === '-p')
         {
           const result = execSync(`git cat-file -p ${hash}`)
-          console.log(result.toString())
+          process.stdout.write(result.toString())
         } 
-        console.log("Initialized git directory");
         break;
     default:
         throw new Error(`Unknown command ${command}`);
