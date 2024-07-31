@@ -1,3 +1,4 @@
+import { execSync } from 'child_process';
 import * as fs from 'fs';
 
 const args = process.argv.slice(2);
@@ -5,6 +6,7 @@ const command = args[0];
 
 enum Commands {
     Init = "init",
+    CatFile = 'cat-file'
 }
 
 switch (command) {
@@ -17,6 +19,18 @@ switch (command) {
         fs.mkdirSync(".git/objects", { recursive: true });
         fs.mkdirSync(".git/refs", { recursive: true });
         fs.writeFileSync(".git/HEAD", "ref: refs/heads/main\n");
+        console.log("Initialized git directory");
+        break;
+
+    case Commands.CatFile:
+        
+        console.log("Logs from your program will appear here!");
+        const [ coommand , type , hash ] = args
+        if(type === '-p')
+        {
+          const result = execSync(`git cat-file -p ${hash}`)
+          console.log(result)
+        } 
         console.log("Initialized git directory");
         break;
     default:
