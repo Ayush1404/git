@@ -29,7 +29,7 @@ switch (command) {
         if(type === '-p')
         {
           const result = execSync(`git cat-file -p ${hash}`)
-          console.log(result)
+          console.log(result.toString())
         } 
         console.log("Initialized git directory");
         break;
