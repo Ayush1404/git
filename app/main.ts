@@ -1,6 +1,6 @@
 import * as zlib from 'zlib'
 import * as fs from 'fs';
-
+import * as crypto from 'crypto'
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -36,10 +36,14 @@ switch (command) {
     }
 
     case Commands.HashObject:{
-        const fileName = args[2]
-        const data = fs.readFileSync(fileName)
-        const blobContent = zlib.gzipSync(`blob ${data.length}\0${data}`)
-        console.log(blobContent)
+        const fileName = args[2];
+        const data = fs.readFileSync(fileName);
+        const blobContent = Buffer.from(`blob ${data.length}\0${data}`);
+        const hash = crypto.createHash('sha1').update(blobContent).digest('hex');
+        const compressedData = zlib.deflateSync(blobContent);
+        const objectPath = `.git/objects/${hash.slice(0, 2)}/${hash.slice(2)}`;
+        fs.mkdirSync(`.git/objects/${hash.slice(0, 2)}`, { recursive: true });
+        fs.writeFileSync(objectPath, compressedData);
         break;
     }
     default:
