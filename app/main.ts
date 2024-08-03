@@ -1,5 +1,6 @@
 import { hashObject } from "./bl/hashObject";
 import { catFile } from "./commands/cat-file";
+import { commitTree } from "./commands/commit-tree";
 import { init } from "./commands/init";
 import { lsTree } from "./commands/ls-tree";
 import { writeTree } from "./commands/write-tree";
@@ -30,7 +31,20 @@ switch (command) {
     writeTree();
     break;
   }
-  
+  case "commit-tree": {
+    const treeSha = args[1];
+    if (args.length == 4) {
+      const message = args[3];
+      const sha = commitTree(treeSha, message);
+      console.log(sha.digest("hex"));
+    } else if (args.length == 6) {
+      const message = args[5];
+      const parentCommit = args[3];
+      const sha = commitTree(treeSha, message, parentCommit);
+      console.log(sha.digest("hex"));
+    }
+    break;
+  }
   default:
     throw new Error(`Unknown command ${command}`);
 }
